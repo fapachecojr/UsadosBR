@@ -1,5 +1,5 @@
 {
-    "name": "veloccer/UsadosBR",
+    "name": "veloccer/usadosbr",
     "description": "UsadosBR Private",
     "autoload": {
        "psr-4": {
