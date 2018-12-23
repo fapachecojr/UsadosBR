@@ -1,0 +1,11 @@
+{
+    "name": "veloccer/UsadosBR",
+    "description": "UsadosBR Private",
+    "autoload": {
+       "psr-4": {
+           "UsadosBR\\": "src"
+       }
+   }
+}
+
+
