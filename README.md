@@ -1,2 +1,2 @@
-# Veloccer / UsadosBR
+# Veloccer / UsadosBR API
 UsadosBR Private
