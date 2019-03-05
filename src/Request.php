@@ -4,9 +4,9 @@ namespace UsadosBR;
 class Request
 {
     /**
-     * The Icarros class instance we belong to.
+     * The UsadosBR class instance we belong to.
      *
-     * @var \UsadosBR\Icarros
+     * @var \UsadosBR\UsadosBR
      */
     protected $_parent;
  
@@ -26,6 +26,7 @@ class Request
     private $_headers = [];
     private $_isToken = false;
     private $_debug = false;
+    private $_fields = [];
 
     public function __construct(
         UsadosBR $parent,
@@ -85,6 +86,11 @@ class Request
 
     public function addPutJSON($json){
         $this->_putJson = $json;
+        return $this;
+    }
+    
+    public function addFieldsGet($fields){
+        $this->_fields = $fields;
         return $this;
     }
 
@@ -183,13 +189,35 @@ class Request
             }
 
         }
-
+        
         $resp           = curl_exec($ch);
         $header_len     = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
         $curl_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE );
         $header         = substr($resp, 0, $header_len);
         $body           = substr($resp, $header_len);
-        $body = json_decode($body, true);
+        $body           = json_decode($body, true);
+        
+        
+        $arrFields = [];
+
+        if($this->_fields == 'dump')
+        {
+            //DOM Resp
+            $oDom = new \UsadosBR\simple_html_dom();
+            $oDom->load($resp);
+            $arrFields['dump'] = $oDom->dump();
+        }
+        else
+        if(isset($this->_fields) && sizeof($this->_fields) > 0)
+        {
+            //DOM Resp
+            $oDom = new \UsadosBR\simple_html_dom();
+            $oDom->load($resp);
+            foreach($this->_fields as $field){
+                $arrFields[$field['desc']] = $oDom->find('['.$field['type'].'="'.$field['desc'].'"]',0)->value;
+            }
+
+        }
 
         curl_close($ch);
 
@@ -197,7 +225,8 @@ class Request
             
             return [
                 'status' => 'ok',
-                'body' => $body
+                'body' => $body,
+                'fields' => $arrFields
             ];
 
         } else {
@@ -209,5 +238,11 @@ class Request
                 'body' => $body
             ];
         }
+    }
+    
+    private function getFieldDOM($type = 'id', $field = '_token', &$return = null)
+    {
+        $return = $this->oDom->find('['.$type.'="'.$field.'"]',0)->value;
+        
     }
 }
